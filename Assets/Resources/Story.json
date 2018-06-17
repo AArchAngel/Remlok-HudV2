@@ -1,14 +1,14 @@
 [
   {
-    "Opening": "Commander, my name is -RNG name-, -RNG role- -department- and I represent the -employing faction-. Thanks for accepting our proposal I asked for someone as this represents my area. ",
+    "Opening": "Commander, my name is -RNG name-, -RNG role- and I represent the -employing faction-. Thanks for accepting our proposal. I made this mission available as I need something taken care of. ",
     "MissionGoal": "As you are aware we need you to -mission type- -target-. ",
-    "FactionGoal": "We have been working out of -mission giver station- to -effect on target- the -target faction-, ",
+    "FactionGoal": "We have been working to -effect on target- the -target faction-. ",
     "MissionSentimentPositive": "-target faction- have always been close allies of ours and this re affirms our commitment to helping them.",
     "MissionSentimentNegative": "-target faction- won't know whats going to hit them they have been working against us for too long",
     "Event": "Pirate attacks"
   },
   {
-    "Opening": "My name is -RNG name- and I represent the -employing faction- it's good to have you on board. I'm not the face of the organisation you may have spoken to, we use them as covers for our real operations. ",
+    "Opening": "My name is -RNG name- and I represent the -employing faction-, it's good to have you on board. I'm not the face of the organisation you may have spoken to, we use them as covers for our real operations. ",
     "MissionGoal": "You have been made aware that we need to -mission type- -target-. ",
     "FactionGoal": "My team have been trying to -effect on target- the -target faction- for some time now and we think this -mission type- will help. ",
     "MissionSentimentPositive": "We share some common goals with -target faction- and would like to help them in -effect on target-.",

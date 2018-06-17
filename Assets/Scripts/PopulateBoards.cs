@@ -11,9 +11,9 @@ public class PopulateBoards : MonoBehaviour {
         {
             MissionBoard();
         }
-        if (Input.GetKeyDown("r") == true)
+        if (Input.GetKeyDown("o") == true)
         {
-          //  storeJSON();
+            GetComponent<VoiceRecognitionSystem>().MissionSpeech();
         }
     }
 

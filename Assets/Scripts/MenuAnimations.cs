@@ -58,6 +58,30 @@ public class MenuAnimations : MonoBehaviour {
         {
             SelectMission(2, false);
         }
+        if (Input.GetKeyDown("4") == true)
+        {
+            SelectMission(3, false);
+        }
+        if (Input.GetKeyDown("5") == true)
+        {
+            SelectMission(4, false);
+        }
+        if (Input.GetKeyDown("6") == true)
+        {
+            SelectMission(5, false);
+        }
+        if (Input.GetKeyDown("7") == true)
+        {
+            SelectMission(6, false);
+        }
+        if (Input.GetKeyDown("8") == true)
+        {
+            SelectMission(7, false);
+        }
+        if (Input.GetKeyDown("9") == true)
+        {
+            SelectMission(8, false);
+        }
 
 
 
@@ -132,11 +156,15 @@ public class MenuAnimations : MonoBehaviour {
 
     public void SelectMission(int MissionNumber, bool NoMissions)
     {
-
+        
         GameObject Grablog;
         GameObject DetailText;
+
+
         DetailText = GameObject.Find("HighlightedBox");
         Grablog = GameObject.Find("GameObject");
+
+        Grablog.GetComponent<VoiceRecognitionSystem>().ActiveMission = MissionNumber;
 
         if (NoMissions == false)
         {

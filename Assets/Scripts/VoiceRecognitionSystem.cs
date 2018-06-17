@@ -120,23 +120,25 @@ public class VoiceRecognitionSystem : MonoBehaviour
         }
     }
 
-    void MissionSpeech()
+   public void MissionSpeech()
     {
-        GetComponent<WatsonTTS>()._SpeechText = 
-            "<speak version=\"1.0\">" +
-            "<voice-transformation type=\"Soft\" " +
-            "pitch=\"" + GetComponent<GrabLog>().ActiveMissionList[ActiveMission].WatsonPitch + "%\" " +
-            "pitch_range=\"" + GetComponent<GrabLog>().ActiveMissionList[ActiveMission].WatsonPitch_Range + "%\" " +
-            "rate=\"" + GetComponent<GrabLog>().ActiveMissionList[ActiveMission].WatsonRate + "%\" " +
-            "breathiness=\"" + GetComponent<GrabLog>().ActiveMissionList[ActiveMission].WatsonBreathiness + "%\" " +
-            "glottal_tension=\" " + GetComponent<GrabLog>().ActiveMissionList[ActiveMission].WatsonTension + "%\"  " +
-            "strength=\"" + GetComponent<GrabLog>().ActiveMissionList[ActiveMission].WatsonStrength + "%\">" +
-             "\"" + GetComponent<GrabLog>().ActiveMissionList[ActiveMission].Story +  "%\"" +
-            "</voice-transformation></speak>";
-        Debug.Log(GetComponent<WatsonTTS>()._SpeechText);
 
-        GetComponent<WatsonTTS>().Voice = GetComponent<GrabLog>().ActiveMissionList[ActiveMission].WatsonVoice;
-        GetComponent<WatsonTTS>().WatsonSpeech();
+        WindowsVoice.speak("retrieving message...   message Reads: " + GetComponent<GrabLog>().ActiveMissionList[ActiveMission].Story, 0);
+    //    GetComponent<WatsonTTS>()._SpeechText = 
+    //        "<speak version=\"1.0\">" +
+    //        "<voice-transformation type=\"Soft\" " +
+    //        "pitch=\"" + GetComponent<GrabLog>().ActiveMissionList[ActiveMission].WatsonPitch + "%\" " +
+    //        "pitch_range=\"" + GetComponent<GrabLog>().ActiveMissionList[ActiveMission].WatsonPitch_Range + "%\" " +
+    //        "rate=\"" + GetComponent<GrabLog>().ActiveMissionList[ActiveMission].WatsonRate + "%\" " +
+    //        "breathiness=\"" + GetComponent<GrabLog>().ActiveMissionList[ActiveMission].WatsonBreathiness + "%\" " +
+    //        "glottal_tension=\" " + GetComponent<GrabLog>().ActiveMissionList[ActiveMission].WatsonTension + "%\"  " +
+    //        "strength=\"" + GetComponent<GrabLog>().ActiveMissionList[ActiveMission].WatsonStrength + "%\">" +
+    //         "\"" + GetComponent<GrabLog>().ActiveMissionList[ActiveMission].Story +
+    //        "</voice-transformation></speak>";
+    //    Debug.Log(GetComponent<WatsonTTS>()._SpeechText);
+
+    //    GetComponent<WatsonTTS>().Voice = GetComponent<GrabLog>().ActiveMissionList[ActiveMission].WatsonVoice;
+    //    GetComponent<WatsonTTS>().WatsonSpeech();
     }
 
 

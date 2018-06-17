@@ -871,7 +871,7 @@ public class GrabLog : MonoBehaviour
 
                 string story = StoryItems[Opening].Opening + StoryItems[MissionGoal].MissionGoal + StoryItems[FactionGoal].FactionGoal + Sentiment;
                 story = story.Replace("-mission type-", ActiveMissionList[Mission].type);
-                story = story.Replace("-target-", ActiveMissionList[Mission].Target);
+                story = story.Replace("-target-", ActiveMissionList[Mission].Target + " " + ActiveMissionList[Mission].TargetType_Localised);
                 story = story.Replace("-mission type-", ActiveMissionList[Mission].type);
                 story = story.Replace("-RNG date-", UnityEngine.Random.Range(3250, 3304).ToString());
                 story = story.Replace("-effect on target-", ActiveMissionList[Mission].TargetEffect);
@@ -904,18 +904,18 @@ public class GrabLog : MonoBehaviour
                 catch (Exception) { }
                 if(ActiveMissionList[Mission].FactionContact == null)
                 {
-                    //  GenerateFactionContact(Mission.Department, Mission.Faction);
+                      GenerateFactionContact(ActiveMissionList[Mission].Department, ActiveMissionList[Mission].Faction);
 
-                    ActiveMissionList[Mission].FactionContact = FactionContacts[FactionContacts.Count-1].FactionContact;
-                    ActiveMissionList[Mission].ContactRole = FactionContacts[FactionContacts.Count-1].ContactRole;
-                    ActiveMissionList[Mission].WatsonVoice = FactionContacts[FactionContacts.Count-1].WatsonVoice;
-                    ActiveMissionList[Mission].WatsonType = FactionContacts[FactionContacts.Count-1].WatsonType;
-                    ActiveMissionList[Mission].WatsonPitch = FactionContacts[FactionContacts.Count-1].WatsonPitch;
-                    ActiveMissionList[Mission].WatsonPitch_Range = FactionContacts[FactionContacts.Count-1].WatsonPitch_Range;
-                    ActiveMissionList[Mission].WatsonRate = FactionContacts[FactionContacts.Count-1].WatsonRate;
-                    ActiveMissionList[Mission].WatsonBreathiness = FactionContacts[FactionContacts.Count-1].WatsonBreathiness;
-                    ActiveMissionList[Mission].WatsonTension = FactionContacts[FactionContacts.Count-1].WatsonTension;
-                    ActiveMissionList[Mission].WatsonStrength = FactionContacts[FactionContacts.Count-1].WatsonStrength;
+                    ActiveMissionList[Mission].FactionContact = FactionContacts[FactionContacts.Count].FactionContact;
+                    ActiveMissionList[Mission].ContactRole = FactionContacts[FactionContacts.Count].ContactRole;
+                    ActiveMissionList[Mission].WatsonVoice = FactionContacts[FactionContacts.Count].WatsonVoice;
+                    ActiveMissionList[Mission].WatsonType = FactionContacts[FactionContacts.Count].WatsonType;
+                    ActiveMissionList[Mission].WatsonPitch = FactionContacts[FactionContacts.Count].WatsonPitch;
+                    ActiveMissionList[Mission].WatsonPitch_Range = FactionContacts[FactionContacts.Count].WatsonPitch_Range;
+                    ActiveMissionList[Mission].WatsonRate = FactionContacts[FactionContacts.Count].WatsonRate;
+                    ActiveMissionList[Mission].WatsonBreathiness = FactionContacts[FactionContacts.Count].WatsonBreathiness;
+                    ActiveMissionList[Mission].WatsonTension = FactionContacts[FactionContacts.Count].WatsonTension;
+                    ActiveMissionList[Mission].WatsonStrength = FactionContacts[FactionContacts.Count].WatsonStrength;
 
                 }
                                 
