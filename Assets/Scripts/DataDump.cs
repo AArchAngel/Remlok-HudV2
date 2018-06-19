@@ -38,6 +38,8 @@ public class DataDump
     public string PilotRank { get; set; }
     public int Bounty { get; set; }
     public string LegalStatus { get; set; }
+    public bool TargetLocked { get; set; }
+    public string StarSystem { get; set; }
 }
 [System.Serializable]
 public class JournalArrays
@@ -84,15 +86,16 @@ public class MissionAdd
     public string Department;
     public string FactionContact;
     public string ContactRole;
+    
 
-    public string WatsonVoice;
-    public int WatsonType;
-    public int WatsonPitch;
-    public int WatsonPitch_Range;
-    public int WatsonRate;
-    public int WatsonBreathiness;
-    public int WatsonTension;
-    public int WatsonStrength;
+    //public string WatsonVoice;
+    //public int WatsonType;
+    //public int WatsonPitch;
+    //public int WatsonPitch_Range;
+    //public int WatsonRate;
+    //public int WatsonBreathiness;
+    //public int WatsonTension;
+    //public int WatsonStrength;
 }
 public class MissionEnd
 {
@@ -150,13 +153,13 @@ public class FactionVariables
     public string ContactRole;
     public string ContactDepartment;
     public string WatsonVoice;
-    public int WatsonType;
-    public int WatsonPitch;
-    public int WatsonPitch_Range;
-    public int WatsonRate;
-    public int WatsonBreathiness;
-    public int WatsonTension;
-    public int WatsonStrength;
+    //public int WatsonType;
+    //public int WatsonPitch;
+    //public int WatsonPitch_Range;
+    //public int WatsonRate;
+    //public int WatsonBreathiness;
+    //public int WatsonTension;
+    //public int WatsonStrength;
 }
 
 public class RNGNames

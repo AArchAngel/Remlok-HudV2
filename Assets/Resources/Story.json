@@ -2,7 +2,7 @@
   {
     "Opening": "Commander, my name is -RNG name-, -RNG role- and I represent the -employing faction-. Thanks for accepting our proposal. I made this mission available as I need something taken care of. ",
     "MissionGoal": "As you are aware we need you to -mission type- -target-. ",
-    "FactionGoal": "We have been working to -effect on target- the -target faction-. ",
+    "FactionGoal": "We have been working to -effect on target-. ",
     "MissionSentimentPositive": "-target faction- have always been close allies of ours and this re affirms our commitment to helping them.",
     "MissionSentimentNegative": "-target faction- won't know whats going to hit them they have been working against us for too long",
     "Event": "Pirate attacks"
@@ -10,7 +10,7 @@
   {
     "Opening": "My name is -RNG name- and I represent the -employing faction-, it's good to have you on board. I'm not the face of the organisation you may have spoken to, we use them as covers for our real operations. ",
     "MissionGoal": "You have been made aware that we need to -mission type- -target-. ",
-    "FactionGoal": "My team have been trying to -effect on target- the -target faction- for some time now and we think this -mission type- will help. ",
+    "FactionGoal": "My team have been trying to -effect on target- for some time now and we think this will help. ",
     "MissionSentimentPositive": "We share some common goals with -target faction- and would like to help them in -effect on target-.",
     "MissionSentimentNegative": "They will finally pay for their crimes they headed up a campaign back in -RNG date- we have been rebuilding and waiting for the perfect opportunity.",
     "Event": "multiple assassination attempts against our leadership"
@@ -18,7 +18,7 @@
   {
     "Opening": "Hello, you dont need to know my name but you do need to know that I work closely with the leaders of -employing faction-. ",
     "MissionGoal": "we need you to take care of something for us -target- needs -mission type-ing. ",
-    "FactionGoal": "The -target faction- are in a position where our plans to -effect on target- them can finally start moving forward, ",
+    "FactionGoal": "The -target faction- are in a position where our plans to -effect on target- can finally start moving forward, ",
     "MissionSentimentPositive": "during some more troubled times we faced in -RNG date- when we came under pressure from -rng negative event- they helped us out",
     "MissionSentimentNegative": "It's well known there is friction between our operations we are looking to get the upper hand here.",
     "Event": "internal ambush"

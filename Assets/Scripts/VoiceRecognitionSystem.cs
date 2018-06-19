@@ -20,6 +20,7 @@ public class VoiceRecognitionSystem : MonoBehaviour
     public string ChatText;
     public string VariableText;
     public int ActiveMission = 0;
+    public bool MissionSelected = false;
 
     private bool ChatModeToggle = false;
 

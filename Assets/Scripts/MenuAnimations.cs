@@ -34,7 +34,7 @@ public class MenuAnimations : MonoBehaviour {
         }
         if (Input.GetKeyDown("f") == true)
         {
-   //         HighlightBox("Factions");
+            HighlightBox("Factions");
         }
         if (Input.GetKeyDown("s") == true)
         {
@@ -53,7 +53,6 @@ public class MenuAnimations : MonoBehaviour {
         {
             SelectMission(1, false);
         }
-
         if (Input.GetKeyDown("3") == true)
         {
             SelectMission(2, false);
@@ -110,6 +109,7 @@ public class MenuAnimations : MonoBehaviour {
         GameObject Mission;
         GameObject DetailText;
         GameObject Grablog;
+        
 
 
         Grablog = GameObject.Find("GameObject");
@@ -120,6 +120,11 @@ public class MenuAnimations : MonoBehaviour {
         {
             Mission.GetComponent<Text>().text = variable;
             if (variable == "Missions")
+            {
+                DetailText.GetComponent<Text>().text = Grablog.GetComponent<GrabLog>().ActiveMissionList[0].Story;
+            }
+            Mission.GetComponent<Text>().text = variable;
+            if (variable == "Target")
             {
                 DetailText.GetComponent<Text>().text = Grablog.GetComponent<GrabLog>().ActiveMissionList[0].Story;
             }
@@ -159,16 +164,23 @@ public class MenuAnimations : MonoBehaviour {
         
         GameObject Grablog;
         GameObject DetailText;
+        GameObject MissionDetails;
 
-
+        MissionDetails = GameObject.Find("ActiveMissionDetails");
         DetailText = GameObject.Find("HighlightedBox");
         Grablog = GameObject.Find("GameObject");
 
         Grablog.GetComponent<VoiceRecognitionSystem>().ActiveMission = MissionNumber;
+        Grablog.GetComponent<VoiceRecognitionSystem>().MissionSelected = true;
 
         if (NoMissions == false)
         {
             DetailText.GetComponent<Text>().text = Grablog.GetComponent<GrabLog>().ActiveMissionList[MissionNumber].Story;
+
+
+            MissionDetails.GetComponent<Text>().text = Grablog.GetComponent<GrabLog>().ActiveMissionList[MissionNumber].type + " " +
+                Grablog.GetComponent<GrabLog>().ActiveMissionList[MissionNumber].KillCount + " " +
+                Grablog.GetComponent<GrabLog>().ActiveMissionList[MissionNumber].Target;
         }
         else
         {
