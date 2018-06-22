@@ -1,10 +1,13 @@
 ﻿using UnityEngine;
 using System.Diagnostics;
 
+
 public class GameRunningCheck : MonoBehaviour
 {
 
-  //  public bool Running;
+    //  public bool Running;
+
+    public string VATest;
 
     private void Start()
     {

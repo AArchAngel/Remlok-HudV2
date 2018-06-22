@@ -2,20 +2,17 @@
 
 using UnityEngine;
 using UnityEngine.UI;
-using WindowsInput;
-using WindowsInput.Native;
-
-
+using System;
+using System.IO;
+using System.Linq;
 
 public class VoiceRecognitionSystem : MonoBehaviour
 {
-    public ActiveMissionDetails _activeMissionDetails;
+     public string Result;  
 
-    public string Result;  
-
-    public string[] Commands;
-    public string[] Response;
-    public string[] Variable;
+    public string Commands;
+    public string Response;
+    public string Variable;
 
     public string ChatText;
     public string VariableText;
@@ -24,59 +21,36 @@ public class VoiceRecognitionSystem : MonoBehaviour
 
     private bool ChatModeToggle = false;
 
-
-    InputSimulator IS;
  
-    // Use this for initialization
-    void Start()
+    void Update()
     {
-        IS = new InputSimulator();
-    }
+        //GameObject LiveText;
+        //LiveText = GameObject.Find("ActiveMissionDetails");
+        //LiveText.GetComponent<Text>().text = Result;
 
+        //    for (int i = 0; i < Commands.Length; i++)
+        //    {
+        //        Debug.Log("Text = " + Result + " Command = " + Commands[i]);
+        //        if (Result.Contains(Commands[i].ToString()) == true)
+        //        {
 
+        string[] VACommand = File.ReadAllLines(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "Low/Remlok/Intelligent HUD/VoiceAttackCommand.txt");
 
-    public void RecognitionSystem()
-    {
-        GameObject LiveText;
-        LiveText = GameObject.Find("ActiveMissionDetails");
-        LiveText.GetComponent<Text>().text = Result;
-
-        if (ChatModeToggle == true)
+        if (VACommand.Length == 0)
         {
 
-          foreach (char c in Result)
-            {
-                string ChatText = c.ToString();
-                if (ChatText == " ")
-                {
-                    IS.Keyboard.KeyDown(VirtualKeyCode.SPACE);
-                }
-                else
-                {
-                    VirtualKeyCode ChatLetter = (VirtualKeyCode)System.Enum.Parse(typeof(VirtualKeyCode), "VK_" + ChatText.ToUpper());
-                    IS.Keyboard.KeyPress(ChatLetter);
-                    ChatModeToggle = false;
-                }
-            }
-          //  GetComponent<WatsonSTT>().StopRecording();
         }
-
         else
         {
-            for (int i = 0; i < Commands.Length; i++)
-            {
-                Debug.Log("Text = " + Result + " Command = " + Commands[i]);
-                if (Result.Contains(Commands[i].ToString()) == true)
-                {
-                    Invoke(Response[i], 0f);
-                    VariableText = Variable[i];
-                 //   GetComponent<WatsonSTT>().StopRecording();
-                 //   GetComponent<WatsonSTT>().PTT = false;
-                }
-            }
+            Response = VACommand[1];
+            VariableText = VACommand[2];
+            Invoke(Response, 0f);
+            File.WriteAllText(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "Low/Remlok/Intelligent HUD/VoiceAttackCommand.txt", "");
 
         }
 
+            //    }
+            //}
     }
 
     void Menu()
@@ -86,22 +60,16 @@ public class VoiceRecognitionSystem : MonoBehaviour
         Menu = GameObject.Find("MenuSystem");
         Menu.GetComponent<MenuAnimations>().ToggleMenu();
         Debug.Log("ShowingMissions");
-     //   GetComponent<WatsonSTT>().StopRecording();
-     //   GetComponent<WatsonSTT>().PTT = false;
     }
     void HighlightBox()
     {
-
         GameObject Menu;
         Menu = GameObject.Find("MenuSystem");
         Menu.GetComponent<MenuAnimations>().HighlightBox(VariableText);
-     //   GetComponent<WatsonSTT>().StopRecording();
-     //   GetComponent<WatsonSTT>().PTT = false;
     }
     void ChatMode()
     {
         ChatModeToggle = true;
-        IS.Keyboard.KeyDown(VirtualKeyCode.VK_A);
         WindowsVoice.speak("Chat Mode", 0);
     }
 
@@ -122,24 +90,26 @@ public class VoiceRecognitionSystem : MonoBehaviour
     }
 
    public void MissionSpeech()
+   {
+        WindowsVoice.speak("retrieving message...   message Reads: " + GetComponent<GrabLog>().ActiveMissionList[ActiveMission].Story, 0);
+   }
+    
+    public void OrderMissions()
     {
 
-        WindowsVoice.speak("retrieving message...   message Reads: " + GetComponent<GrabLog>().ActiveMissionList[ActiveMission].Story, 0);
-    //    GetComponent<WatsonTTS>()._SpeechText = 
-    //        "<speak version=\"1.0\">" +
-    //        "<voice-transformation type=\"Soft\" " +
-    //        "pitch=\"" + GetComponent<GrabLog>().ActiveMissionList[ActiveMission].WatsonPitch + "%\" " +
-    //        "pitch_range=\"" + GetComponent<GrabLog>().ActiveMissionList[ActiveMission].WatsonPitch_Range + "%\" " +
-    //        "rate=\"" + GetComponent<GrabLog>().ActiveMissionList[ActiveMission].WatsonRate + "%\" " +
-    //        "breathiness=\"" + GetComponent<GrabLog>().ActiveMissionList[ActiveMission].WatsonBreathiness + "%\" " +
-    //        "glottal_tension=\" " + GetComponent<GrabLog>().ActiveMissionList[ActiveMission].WatsonTension + "%\"  " +
-    //        "strength=\"" + GetComponent<GrabLog>().ActiveMissionList[ActiveMission].WatsonStrength + "%\">" +
-    //         "\"" + GetComponent<GrabLog>().ActiveMissionList[ActiveMission].Story +
-    //        "</voice-transformation></speak>";
-    //    Debug.Log(GetComponent<WatsonTTS>()._SpeechText);
+        if (VariableText == "Reward")
+        {
+            GetComponent<GrabLog>().ActiveMissionList = GetComponent<GrabLog>().ActiveMissionList.OrderByDescending(x => x.reward).ToList();
+        }
+        if (VariableText == "Distance")
+        {
+            GetComponent<GrabLog>().ActiveMissionList = GetComponent<GrabLog>().ActiveMissionList.OrderBy(x => x.distance).ToList();
+        }
+        if (VariableText == "Time")
+        {
+            GetComponent<GrabLog>().ActiveMissionList = GetComponent<GrabLog>().ActiveMissionList.OrderBy(x => x.Expiry).ToList();
+        }
 
-    //    GetComponent<WatsonTTS>().Voice = GetComponent<GrabLog>().ActiveMissionList[ActiveMission].WatsonVoice;
-    //    GetComponent<WatsonTTS>().WatsonSpeech();
     }
 
 

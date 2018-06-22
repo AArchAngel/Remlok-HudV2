@@ -1,6 +1,8 @@
 ﻿
 using UnityEngine;
 using UnityEngine.UI;
+using System.IO;
+using System;
 
 public class MenuAnimations : MonoBehaviour {
 
@@ -8,7 +10,7 @@ public class MenuAnimations : MonoBehaviour {
     Animator m_AnimatorLogo;
     public bool IsActive = false;
     public bool BoxHighlighted = false;
-   
+    public string[] VACommand;
 
     private void Start()
     {
@@ -24,66 +26,85 @@ public class MenuAnimations : MonoBehaviour {
 
     private void Update()
     {
-        if(Input.GetKeyDown("n") == true)
-        {
-            ToggleMenu();
-        }
-        if (Input.GetKeyDown("m") == true)
-        {
-            HighlightBox("Missions");
-        }
-        if (Input.GetKeyDown("f") == true)
-        {
-            HighlightBox("Factions");
-        }
-        if (Input.GetKeyDown("s") == true)
-        {
-            HighlightBox("System");
-        }
-        if (Input.GetKeyDown("t") == true)
-        {
-            HighlightBox("Target");
-        }
+        //if(Input.GetKeyDown("n") == true)
+        //{
+        //    ToggleMenu();
+        //}
+        //if (Input.GetKeyDown("m") == true)
+        //{
+        //    HighlightBox("Missions");
+        //}
+        //if (Input.GetKeyDown("f") == true)
+        //{
+        //    HighlightBox("Factions");
+        //}
+        //if (Input.GetKeyDown("s") == true)
+        //{
+        //    HighlightBox("System");
+        //}
+        //if (Input.GetKeyDown("t") == true)
+        //{
+        //    HighlightBox("Target");
+        //}
 
-            if (Input.GetKeyDown("1") == true)
-            {
-                SelectMission(0, false);
-            }
-        if (Input.GetKeyDown("2") == true)
-        {
-            SelectMission(1, false);
-        }
-        if (Input.GetKeyDown("3") == true)
-        {
-            SelectMission(2, false);
-        }
-        if (Input.GetKeyDown("4") == true)
-        {
-            SelectMission(3, false);
-        }
-        if (Input.GetKeyDown("5") == true)
-        {
-            SelectMission(4, false);
-        }
-        if (Input.GetKeyDown("6") == true)
-        {
-            SelectMission(5, false);
-        }
-        if (Input.GetKeyDown("7") == true)
-        {
-            SelectMission(6, false);
-        }
-        if (Input.GetKeyDown("8") == true)
-        {
-            SelectMission(7, false);
-        }
-        if (Input.GetKeyDown("9") == true)
-        {
-            SelectMission(8, false);
-        }
+        //    if (Input.GetKeyDown("1") == true)
+        //    {
+        //        SelectMission(0, false);
+        //    }
+        //if (Input.GetKeyDown("2") == true)
+        //{
+        //    SelectMission(1, false);
+        //}
+        //if (Input.GetKeyDown("3") == true)
+        //{
+        //    SelectMission(2, false);
+        //}
+        //if (Input.GetKeyDown("4") == true)
+        //{
+        //    SelectMission(3, false);
+        //}
+        //if (Input.GetKeyDown("5") == true)
+        //{
+        //    SelectMission(4, false);
+        //}
+        //if (Input.GetKeyDown("6") == true)
+        //{
+        //    SelectMission(5, false);
+        //}
+        //if (Input.GetKeyDown("7") == true)
+        //{
+        //    SelectMission(6, false);
+        //}
+        //if (Input.GetKeyDown("8") == true)
+        //{
+        //    SelectMission(7, false);
+        //}
+        //if (Input.GetKeyDown("9") == true)
+        //{
+        //    SelectMission(8, false);
+        //}
 
+        //VACommand =  File.ReadAllLines("C:/Users/Phil/Documents/GitHub/Remlok-HudV2/Assets/Resources/Test.txt");
 
+        //if (VACommand.Length == 0)
+        //{
 
+        //}
+        //else
+        //{
+
+        //    if (VACommand[0] == "Open Menu")
+        //    {
+        //       ToggleMenu();
+        //        File.WriteAllText("C:/Users/Phil/Documents/GitHub/Remlok-HudV2/Assets/Resources/Test.txt", "");
+        //    }
+        //    if (VACommand[0] == "Missions")
+        //    {
+        //        HighlightBox("Missions");
+        //        File.WriteAllText("C:/Users/Phil/Documents/GitHub/Remlok-HudV2/Assets/Resources/Test.txt", "");
+        //    }
+
+        //}
     }
 
     public void ToggleMenu () {
@@ -181,6 +202,7 @@ public class MenuAnimations : MonoBehaviour {
             MissionDetails.GetComponent<Text>().text = Grablog.GetComponent<GrabLog>().ActiveMissionList[MissionNumber].type + " " +
                 Grablog.GetComponent<GrabLog>().ActiveMissionList[MissionNumber].KillCount + " " +
                 Grablog.GetComponent<GrabLog>().ActiveMissionList[MissionNumber].Target;
+            File.WriteAllText(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "Low/Remlok/Intelligent HUD/RemlokCommand.txt", Grablog.GetComponent<GrabLog>().ActiveMissionList[MissionNumber].DestinationSystem);
         }
         else
         {

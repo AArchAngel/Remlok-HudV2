@@ -22,7 +22,6 @@ public class GrabLog : MonoBehaviour
     private Vector3 PlayerLocation;
     private string MissionType;
     private int InSystemMissionsCount;
- //   private int MissionPopup = 0;
     public string CurrentTarget;
     public string TargetName;
     public string TargetShip;
@@ -74,15 +73,26 @@ public class GrabLog : MonoBehaviour
         //   GetFile();
         Debug.Log("should start updates");
         InvokeRepeating("UpdateLists", 0, 1f);
-
-      
+       
+   
     }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown("w") == true)
+        {
+            ActiveMissionList = ActiveMissionList.OrderByDescending(x => x.reward).ToList();
+       
+            Debug.Log("Manual Mission 0 is " + ActiveMissionList[0].LocalisedName);
+            Debug.Log("Manual Mission 1 is " + ActiveMissionList[1].LocalisedName);
+        }
+
+}
 
     void UpdateLists()
     {
 
             Debug.Log("getfile running");
-            // UpdateMissionList();
             GetFile();
        
     }
@@ -124,98 +134,6 @@ public class GrabLog : MonoBehaviour
 
     }
 
-    void Update()
-    {
-  
-        if (GetComponent<JournalWatcher>().RunGrabLog == true)
-        {
-            GetFile();
-            GetComponent<JournalWatcher>().RunGrabLog = false;
-        }
-
-        // if (Input.GetKeyDown("f"))
-        //{
-        //    GetFile();
-        //}
-        //GameObject FilterText;
-        //FilterText = GameObject.Find("FilterText");
-        //if (Input.GetKeyDown("1"))
-        //{
-        //    Reward();
-        //    FilterText.GetComponent<Text>().text = "Showing highest paying missions";
-        //}
-        //if (Input.GetKeyDown("2"))
-        //{
-        //    foreach (var item in ActiveMissionList)
-        //    {
-        //        Debug.Log("Active Mission ID = " + item.LocalisedName);
-        //        Debug.Log(ActiveMissionList.Count);
-        //    }
-        //}
-        //if (Input.GetKeyDown("3"))
-        //{
-        //    Time();
-        //    FilterText.GetComponent<Text>().text = "Showing missions with least amount of time remaining";
-        //}
-
-        //if (Input.GetKeyDown("4"))
-        //{
-        //    if (ActiveMissionCount == 0)
-        //    {
-        //         Debug.Log("No missions!");
-        //    }
-        //    else {
-        //        foreach (var item in ActiveMissionList)
-        //        {
-        //            item.active = false;
-        //        }
-        //        ActiveMissionList[0].active = true;
-        //        UpdateMissionList();
-        //    }
-        //}
-        //if (Input.GetKeyDown("5"))
-        //{
-        //    if (ActiveMissionCount < 2)
-        //    {
-        //         Debug.Log("No missions!");
-        //    }
-        //    else
-        //    {
-        //        foreach (var item in ActiveMissionList)
-        //        {
-        //            item.active = false;
-        //        }
-        //        ActiveMissionList[1].active = true;
-        //        UpdateMissionList();
-        //    }
-        //}
-        //if (Input.GetKeyDown("6"))
-        //{
-        //    if (ActiveMissionCount < 3)
-        //    {
-        //         Debug.Log("No missions!");
-        //    }
-        //    else
-        //    {
-        //        foreach (var item in ActiveMissionList)
-        //        {
-        //            item.active = false;
-        //        }
-        //        ActiveMissionList[2].active = true;
-        //        UpdateMissionList();
-        //    }
-        //}
-        //if (Input.GetKeyDown("7"))
-        //{
-
-        //        foreach (var item in ActiveMissionList)
-        //        {
-        //            item.active = false;
-        //        }
-
-        //}
-
-    }
 
     //One off Read journal files and populate lists
 
@@ -268,7 +186,7 @@ public class GrabLog : MonoBehaviour
         
         for (int j = LastLineNumber; j < JournalData.Length; j++)
         {
-
+            Debug.Log(LastLineNumber + " " + JournalData.Length);
                 //Handle extra blank line at end of file
                 if (JournalData[j].Length == 0)
                 { }
@@ -414,7 +332,7 @@ public class GrabLog : MonoBehaviour
                         {
                             foreach (var File in ActiveMissionList)
                             {
-                                Debug.Log(File.MissionID + "File and Datadump " + datadump.MissionID);
+                        
                                 if (File.MissionID == datadump.MissionID)
                                 {
                                     MatchedMission = true;
@@ -426,7 +344,7 @@ public class GrabLog : MonoBehaviour
                                 }
                             }
 
-                            Debug.Log(MatchedMission);
+
                             
                             if (MatchedMission == false)
                             {
@@ -736,7 +654,7 @@ public class GrabLog : MonoBehaviour
                         EndedMissionList.Add(new MissionEnd { MissionID = datadump.MissionID });
                         Debug.Log("Mission Failed");
                     }
-                    if (datadump.@event == "MissionCompleted" || datadump.@event == "MissionAbandoned" || datadump.@event == "MissionFailed")
+                    if (datadump.@event == "MissionCompleted" )
                     {
                         Debug.Log("Mission Completed!");
                         EndedMissionList.Add(new MissionEnd { MissionID = datadump.MissionID });
@@ -837,10 +755,7 @@ public class GrabLog : MonoBehaviour
     public void ScrollJournals()
     {
         JournalLine = 2;
-      foreach(var mission in ActiveMissionList)
-        {
-            Debug.Log(mission.MissionID + " " + mission.type);
-        }
+
             for (int item = 0; item < ActiveMissionList.Count; item++)
             {
                 if (ActiveMissionList[item].LocalisedName == null)
@@ -854,9 +769,8 @@ public class GrabLog : MonoBehaviour
 
             MissionRemoval();
             MissionCleanse();
-            MissionRemoval();
             KillCountUpdate();
-            GetComponent<PopulateBoards>().storeJSON();
+            
 
     }
     void KillCountUpdate()
@@ -994,14 +908,17 @@ public class GrabLog : MonoBehaviour
             if (ActiveMissionList[Mission].KillCount == 0)
             {
                 MissionListDisplay.GetComponent<Text>().text = MissionListDisplay.GetComponent<Text>().text + ActiveMissionList[Mission].type + " " + ActiveMissionList[Mission].Target + "\n";
-
             }
             else
             {
                 MissionListDisplay.GetComponent<Text>().text = MissionListDisplay.GetComponent<Text>().text + ActiveMissionList[Mission].type + " " + ActiveMissionList[Mission].KillCount + " " + ActiveMissionList[Mission].Target + "\n";
             }
 
-            if(GetComponent<VoiceRecognitionSystem>().MissionSelected == true)
+            Debug.Log("Mission " + Mission + " is " + ActiveMissionList[Mission].LocalisedName);
+            Debug.Log("Manual Mission 0 is " + ActiveMissionList[0].LocalisedName);
+            Debug.Log("Manual Mission 1 is " + ActiveMissionList[1].LocalisedName);
+
+            if (GetComponent<VoiceRecognitionSystem>().MissionSelected == true)
             {
                 GameObject NextSteps;
                 NextSteps = GameObject.Find("ActiveMissionNextStep");
@@ -1033,6 +950,7 @@ public class GrabLog : MonoBehaviour
                         }
             }
         }
+        GetComponent<PopulateBoards>().storeJSON();
     }
 
     public void GenerateFactionContact(string Department, string Faction)
