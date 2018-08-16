@@ -1,7 +1,6 @@
 ﻿
 
 using UnityEngine;
-using UnityEngine.UI;
 using System;
 using System.IO;
 using System.Linq;
@@ -13,26 +12,15 @@ public class VoiceRecognitionSystem : MonoBehaviour
     public string Commands;
     public string Response;
     public string Variable;
+    string FactionName;
 
     public string ChatText;
     public string VariableText;
     public int ActiveMission = 0;
     public bool MissionSelected = false;
-
-    private bool ChatModeToggle = false;
-
  
     void Update()
     {
-        //GameObject LiveText;
-        //LiveText = GameObject.Find("ActiveMissionDetails");
-        //LiveText.GetComponent<Text>().text = Result;
-
-        //    for (int i = 0; i < Commands.Length; i++)
-        //    {
-        //        Debug.Log("Text = " + Result + " Command = " + Commands[i]);
-        //        if (Result.Contains(Commands[i].ToString()) == true)
-        //        {
 
         string[] VACommand = File.ReadAllLines(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "Low/Remlok/Intelligent HUD/VoiceAttackCommand.txt");
 
@@ -48,9 +36,6 @@ public class VoiceRecognitionSystem : MonoBehaviour
             File.WriteAllText(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "Low/Remlok/Intelligent HUD/VoiceAttackCommand.txt", "");
 
         }
-
-            //    }
-            //}
     }
 
     void Menu()
@@ -66,11 +51,6 @@ public class VoiceRecognitionSystem : MonoBehaviour
         GameObject Menu;
         Menu = GameObject.Find("MenuSystem");
         Menu.GetComponent<MenuAnimations>().HighlightBox(VariableText);
-    }
-    void ChatMode()
-    {
-        ChatModeToggle = true;
-        WindowsVoice.speak("Chat Mode", 0);
     }
 
     void SelectMission()
@@ -89,7 +69,35 @@ public class VoiceRecognitionSystem : MonoBehaviour
         }
     }
 
-   public void MissionSpeech()
+
+    //void SelectFaction()
+    //{
+    //    GameObject Menu;
+    //    Menu = GameObject.Find("MenuSystem");
+    //    int FactionCount=0;
+    //    foreach (var faction in GetComponent<GrabLog>().FactionSystems)
+    //    {
+    //        if (faction.SystemName == GetComponent<GrabLog>().StarSystem)
+    //        {
+    //            FactionCount++;
+    //            if(FactionCount == int.Parse(VariableText))
+    //                {
+    //                FactionName = faction.FactionName;
+    //                }   
+    //        }
+    //    }
+    //    if (int.Parse(VariableText) > FactionCount)
+    //    {
+    //        Menu.GetComponent<MenuAnimations>().SelectFaction("", true);
+    //    }
+    //    else
+    //    {
+    //        Menu.GetComponent<MenuAnimations>().SelectFaction(FactionName, false);
+    //        ActiveMission = int.Parse(VariableText);
+    //    }
+    //}
+
+    public void MissionSpeech()
    {
         WindowsVoice.speak("retrieving message...   message Reads: " + GetComponent<GrabLog>().ActiveMissionList[ActiveMission].Story, 0);
    }

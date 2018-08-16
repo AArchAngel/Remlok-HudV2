@@ -11,7 +11,11 @@ using UnityEngine.Networking;
 
 public class GrabLog : MonoBehaviour
 {
-
+    public string Security;
+    public string Economy;
+    public string Government;
+    public string population;
+    public string ControllingFaction;
     public string JournalEndPath;
     private string JournalDump;
     private string SystemDump;
@@ -32,6 +36,7 @@ public class GrabLog : MonoBehaviour
     public bool MissionTarget = false;
     string Sentiment;
     bool FactionFound;
+    bool FactionSystemCaptured;
     public string StarSystem;
     public string remainingTargets;
 
@@ -40,11 +45,9 @@ public class GrabLog : MonoBehaviour
     private int FileNumber = 0;
     private int JournalStartMissions = 0;
     private int JournalLine = 0;
-    private int MissionsFound = 0;
     private int LastLineNumber = 0;
     private int FirstFileLastLineNumber = 0;
-
-
+  //  private int MissionsFound = 0;
 
     public List<DataDump> JournalContents = new List<DataDump>();
     public List<MissionAdd> ActiveMissionList = new List<MissionAdd>();
@@ -52,9 +55,9 @@ public class GrabLog : MonoBehaviour
     public List<Systems> EDDBData = new List<Systems>();
     public List<KillList> killlist = new List<KillList>();
     public List<PlayerInfo> playerinfo = new List<PlayerInfo>();
-    public List<MissionStory> StoryItems = new List<MissionStory>();
-    public List<RNGRoles> RNGRoles = new List<RNGRoles>();
-    public List<FactionVariables> FactionContacts = new List<FactionVariables>();
+    public List<Commodities> EDDBCommodity = new List<Commodities>();
+    public List<Markets> EDDBMarkets= new List<Markets>();
+
 
     public Transform distance;
     bool MatchedMission;
@@ -64,37 +67,51 @@ public class GrabLog : MonoBehaviour
     public Sprite ActiveMission;
 
     public string MissionPath;
+    public string Factionpath;
 
     private void Start()
     {
+        Factionpath = Application.dataPath + "/Resources/Factions.json";
         MissionPath = Application.dataPath + "/Resources/missionlist.json";
         WindowsVoice.speak("Welcome To The Remlok Intelligent H U D", 0);
-        //   GetEDDB();
-        //   GetFile();
-        Debug.Log("should start updates");
+        GetEDDB();
+
         InvokeRepeating("UpdateLists", 0, 1f);
-       
-   
     }
 
     private void Update()
     {
         if (Input.GetKeyDown("w") == true)
         {
-            ActiveMissionList = ActiveMissionList.OrderByDescending(x => x.reward).ToList();
+            foreach (var item in EDDBCommodity)
+            {
+                if(item.name == "Explosives")
+                {
+                    int CommodityID = item.id;
+                    foreach (var commodity in EDDBMarkets)
+                    {
+                        if(commodity.Commodity_id == CommodityID.ToString())
+                        {
+                            Debug.Log(commodity.Station_id + "StationID " + commodity.Supply + " Supply");
+                        }
+                    }
+                }
+
+               
+
+            }
+        }
        
-            Debug.Log("Manual Mission 0 is " + ActiveMissionList[0].LocalisedName);
-            Debug.Log("Manual Mission 1 is " + ActiveMissionList[1].LocalisedName);
+        if (Input.GetKeyDown("f") == true)
+        {
+            GetFile();
         }
 
-}
+    }
 
     void UpdateLists()
     {
-
-            Debug.Log("getfile running");
             GetFile();
-       
     }
 
     // Gett EDDB info (only run once during startup)
@@ -103,6 +120,8 @@ public class GrabLog : MonoBehaviour
     {
   
         StartCoroutine(GetText());
+        StartCoroutine(GetMarket());
+        StartCoroutine(GetCommodityList());
     }
     IEnumerator GetText()
     {
@@ -131,7 +150,76 @@ public class GrabLog : MonoBehaviour
 
         }
         WindowsVoice.speak("Cartographic Data Loaded", 0);
+    }
 
+    IEnumerator GetMarket()
+    {
+
+        Debug.Log("Getting Market Data.......");
+        UnityWebRequest www2 = UnityWebRequest.Get("https://eddb.io/archive/v5/listings.csv");
+        yield return www2.SendWebRequest();
+
+        if (www2.isNetworkError || www2.isHttpError)
+        {
+            UnityEngine.Debug.Log(www2.error);
+        }
+        else
+        {
+            Debug.Log("Getting Market Data.......");
+            SystemDump = www2.downloadHandler.text;
+            string[] Marketdata = SystemDump.Split("\n"[0]);
+            foreach (string line in Marketdata)
+            {
+                try
+                {
+                    string[] Markets = line.Split(","[0]);
+                    EDDBMarkets.Add(new Markets { Commodity_id = Markets[2], Supply = Markets[3], buy_price = Markets[5] , sell_price = Markets[6]}); 
+}
+                catch (Exception)
+                {
+                }
+            }
+            Debug.Log(EDDBMarkets[0].Commodity_id);
+
+        }
+        WindowsVoice.speak("Market Data Loaded", 0);
+    }
+
+    IEnumerator GetCommodityList()
+    {
+
+        
+        UnityWebRequest www2 = UnityWebRequest.Get("https://eddb.io/archive/v5/commodities.json");
+        yield return www2.SendWebRequest();
+
+        if (www2.isNetworkError || www2.isHttpError)
+        {
+            UnityEngine.Debug.Log(www2.error);
+          
+        }
+        else
+        {
+   
+            SystemDump = www2.downloadHandler.text;
+            string[] Marketdata = SystemDump.Split("}}"[0]);
+            foreach (string line in Marketdata)
+    
+            {
+                Debug.Log(line);
+                try
+                {
+                    Commodities eddbCommodity = JsonConvert.DeserializeObject<Commodities>(line);
+                   Debug.Log(line);
+                    EDDBCommodity.Add(new Commodities { name = eddbCommodity.name, id = eddbCommodity.id});
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+        }
+        Debug.Log(EDDBCommodity.Count);
+        WindowsVoice.speak("Commodity Data Loaded", 0);
     }
 
 
@@ -161,15 +249,7 @@ public class GrabLog : MonoBehaviour
 
     public void GetFile()
     {
-        if (new FileInfo(MissionPath).Length == 0)
-        {
-         //   Debug.Log("File Empty");
-        }
-        else
-        {
-            string missiondata = File.ReadAllText(MissionPath);
-            ActiveMissionList = JsonConvert.DeserializeObject<List<MissionAdd>>(missiondata);
-        }
+
 
 
         GetJournalData();
@@ -207,7 +287,7 @@ public class GrabLog : MonoBehaviour
                 {
 
                     //timestamp check
-               //     Debug.Log("Reading Line " + j);
+       
 
                     // Game load = 1 (when Commander event found)
                     if (JournalLine == 1 && FileNumber == 0)
@@ -230,6 +310,7 @@ public class GrabLog : MonoBehaviour
                                                 if(File.MissionID == datadump.Active[i].MissionID)
                                                 {
                                                     MatchedMission = true;
+                                                    break;
                                                 }
                                                 else
                                                 {
@@ -240,7 +321,6 @@ public class GrabLog : MonoBehaviour
                                             {
                                                 JournalStartMissions = JournalStartMissions + 1;
                                                 ActiveMissionList.Add(new MissionAdd { MissionID = datadump.Active[i].MissionID.ToString() });
-                                                MissionsFound = 1;
                                             }
                                         }
                                     }
@@ -260,16 +340,30 @@ public class GrabLog : MonoBehaviour
                         }
                     }
 
-                    // Populate accepted missions
-
-
-                    if (datadump.@event == "FSDJump")
+                    if (datadump.@event == "FSDJump" && FileNumber == 0)
                     {
-                        PlayerLocation = new Vector3(float.Parse(datadump.StarPos[0]), float.Parse(datadump.StarPos[1]), float.Parse(datadump.StarPos[2]));
-        
-                        StarSystem = datadump.StarSystem;
-                    }
+                        FactionFound = false;
+                        FactionSystemCaptured = false;
+                        GameObject SystemData;
+                        SystemData = GameObject.Find("CurrentSystemDetails");
 
+
+                       PlayerLocation = new Vector3(float.Parse(datadump.StarPos[0]), float.Parse(datadump.StarPos[1]), float.Parse(datadump.StarPos[2]));
+                        StarSystem = datadump.StarSystem;
+
+                        ControllingFaction = datadump.SystemFaction;
+                        Security = datadump.SystemSecurity_Localised;
+                        Economy = datadump.SystemEconomy_Localised;
+                        Government = datadump.SystemGovernment_Localised;
+                        population = datadump.Population;
+
+                        SystemData.GetComponent<Text>().text = StarSystem + 
+                            "\n" + Security + "\nEconomy: " + Economy;
+
+                       
+
+                    }
+                     
                     if (datadump.@event == "Bounty")
                     {
                         killlist.Add(new KillList { KillTime = datadump.timestamp, Faction = datadump.VictimFaction });
@@ -322,6 +416,10 @@ public class GrabLog : MonoBehaviour
                             {
                                 MissionType = "Retrieve";
                             }
+                            if (datadump.name.StartsWith("MISSION_Scan"))
+                            {
+                                MissionType = "Scan";
+                            }
                         }
                         catch (Exception)
                         {
@@ -344,8 +442,6 @@ public class GrabLog : MonoBehaviour
                                 }
                             }
 
-
-                            
                             if (MatchedMission == false)
                             {
                                 ActiveMissionList.Add(new MissionAdd { MissionID = datadump.MissionID.ToString() });
@@ -391,22 +487,13 @@ public class GrabLog : MonoBehaviour
                                     mission.AcceptedTime = datadump.timestamp;
                                     mission.LocalisedName = datadump.LocalisedName;
                                     mission.reward = datadump.Reward;
-                                    mission.Target = datadump.Target;
-                                    mission.TargetType_Localised = datadump.TargetType_Localised;
+                                    mission.KillCountstring = datadump.Target;
+                                    mission.Target = datadump.TargetType_Localised;
                                     mission.TargetFaction = datadump.TargetFaction;
                                     mission.DestinationSystem = datadump.DestinationSystem;
                                     mission.Expiry = datadump.Expiry;
                                     mission.type = MissionType;
-                                    mission.Sentiment = "Neg";
-                                    mission.Department = "Security";
-                                                                        if(datadump.TargetType_Localised.Contains("pirate") == true)
-                                    {
-                                        mission.TargetEffect = " increase economic prosperity by stemming the ongoing crime wave ";
-                                    }
-                                    else
-                                    {
-                                        mission.TargetEffect = " Avoid a lockdown situation being caused by an upcoming attack by " + datadump.Target + "'s people ";
-                                    }
+                                  
                                     break;
                                 }
                             }
@@ -425,23 +512,12 @@ public class GrabLog : MonoBehaviour
                                     mission.AcceptedTime = datadump.timestamp;
                                     mission.LocalisedName = datadump.LocalisedName;
                                     mission.reward = datadump.Reward;
-                                    mission.Target = datadump.KillCount.ToString();
-                                    mission.TargetType_Localised = datadump.TargetType_Localised;
+                                    mission.KillCountstring = datadump.KillCount.ToString();
+                                    mission.Target = datadump.TargetType_Localised;
                                     mission.TargetFaction = datadump.TargetFaction;
                                     mission.DestinationSystem = datadump.DestinationSystem;
                                     mission.Expiry = datadump.Expiry;
                                     mission.type = MissionType;
-                                    mission.Sentiment = "Neg";
-                                    if(datadump.LocalisedName.Contains("Pirates") == true)
-                                    {
-                                        mission.Department = "Security";
-                                        mission.TargetEffect = " reduce the amount of crime sweeping across the system ";
-                                    }
-                                    else
-                                    {
-                                        mission.Department = "Military strategy";
-                                        mission.TargetEffect = " swing the tides of this war in our favour ";
-                                    }
                                     break;
                                 }
                             }
@@ -465,9 +541,7 @@ public class GrabLog : MonoBehaviour
                                     mission.DestinationStation = datadump.DestinationStation;
                                     mission.Expiry = datadump.Expiry;
                                     mission.type = MissionType;
-                                    mission.Sentiment = "Pos";
-                                    mission.Department = "Communications";
-                                    mission.TargetEffect = " help establish trade routes and trigger an economic boom";
+             
                                     break;
                                 }
                             }
@@ -491,25 +565,9 @@ public class GrabLog : MonoBehaviour
                                     mission.DestinationStation = datadump.DestinationStation;
                                     mission.Expiry = datadump.Expiry;
                                     mission.type = MissionType;
-                                    mission.KillCount = datadump.Count;
+                                    mission.KillCountstring = datadump.Count.ToString();
                                     mission.Target = datadump.Commodity_Localised;
-                                    if(datadump.Commodity_Localised == "illegal weapons" || datadump.Commodity_Localised == "illegal drugs" || datadump.Commodity_Localised == "drugs")
-                                    {
-                                        mission.Sentiment = "Neg";
-                                        mission.TargetEffect = "Move this system into an econominc crisis and instigate marshall law ";
-                                    }
-                                    else if (datadump.Commodity_Localised == "biowaste")
-                                    {
-                                        mission.Sentiment = "Neg";
-                                        mission.TargetEffect = "cause a viral outbreak by crippling their sanitation systems";
-                                    }
-                                    else
-                                    {
-                                        mission.Sentiment = "Pos";
-                                        mission.TargetEffect = "capitalise on the economic success of the system and build the economy to new levels of prosperity";
-                                    }
-                                    mission.Department = "Logistics";
-                                    break;
+                                                                   break;
                                 }
                             }
 
@@ -532,9 +590,7 @@ public class GrabLog : MonoBehaviour
                                     mission.Expiry = datadump.Expiry;
                                     mission.type = MissionType;
                                     mission.DestinationSystem = "Unknown";
-                                    mission.Sentiment = "Neg";
-                                    mission.Department = "Military Strategy";
-                                    mission.TargetEffect = "cripple their defenses and cause a state of marshal law or even trigger a civil war";
+
                                     break;
                                 }
                             }
@@ -554,14 +610,12 @@ public class GrabLog : MonoBehaviour
                                     mission.LocalisedName = datadump.LocalisedName;
                                     mission.reward = datadump.Reward;
                                     mission.TargetFaction = datadump.TargetFaction;
-                                    mission.KillCount = datadump.Count;
+                                    mission.KillCountstring = datadump.Count.ToString();
                                     mission.TargetType_Localised = datadump.Commodity_Localised;
                                     mission.Expiry = datadump.Expiry;
                                     mission.type = MissionType;
                                     mission.Target = datadump.Commodity_Localised;
-                                    mission.Sentiment = "Pos";
-                                    mission.Department = "Logistics";
-                                    mission.TargetEffect = "help maintain the status quo around here";
+
                                     break;
                                 }
                             }
@@ -585,12 +639,8 @@ public class GrabLog : MonoBehaviour
                                     mission.DestinationStation = datadump.DestinationStation;
                                     mission.Expiry = datadump.Expiry;
                                     mission.type = MissionType;
-                                    mission.KillCount = datadump.Count;
+                                    mission.KillCountstring = datadump.Count.ToString();
                                     mission.Target = datadump.Commodity_Localised;
-                                    mission.Sentiment = "Pos";
-                                    mission.Department = "Mining Operations";
-                                
-                                    mission.TargetEffect = "capitalise on the economic success of the system and build the economy to new levels of prosperity";
                                     break;
                                 }
                             }
@@ -612,11 +662,30 @@ public class GrabLog : MonoBehaviour
                                     mission.Expiry = datadump.Expiry;
                                     mission.type = MissionType;
                                     mission.DestinationSystem = "Unknown";
-                                    mission.Sentiment = "Neg";
-                                    mission.Department = "Military Strategy";
-                                    mission.TargetFaction = datadump.TargetFaction;
-                                    mission.TargetEffect = "cripple their defenses and cause a state of marshal law or even trigger a civil war";
+
                                     break;
+                                }
+                            }
+
+                        }
+                        else if (datadump.name.StartsWith("MISSION_Scan"))
+
+                        {
+
+                            foreach (var mission in ActiveMissionList)
+                            {
+                                if (mission.MissionID == datadump.MissionID)
+                                {
+                                    //   FoundMissions = FoundMissions + 1;
+                                    mission.AcceptedTime = datadump.timestamp;
+                                    mission.LocalisedName = datadump.LocalisedName;
+                                    mission.reward = datadump.Reward;
+                                    mission.Target = datadump.DestinationStation;
+                                    mission.Expiry = datadump.Expiry;
+                                    mission.KillCountstring = null;
+                                    mission.type = MissionType;
+                                    mission.DestinationSystem = datadump.DestinationSystem;
+                                   break;
                                 }
                             }
 
@@ -638,9 +707,7 @@ public class GrabLog : MonoBehaviour
                                     mission.Expiry = datadump.Expiry;
                                     mission.type = MissionType;
                                     mission.TargetFaction = datadump.TargetFaction;
-                                    mission.Sentiment = "Neg";
-                                    mission.Department = "Logistics";
-                                    mission.TargetEffect = "solve a little problem they have";
+           
                                     break;
 
                                 }
@@ -672,75 +739,36 @@ public class GrabLog : MonoBehaviour
                     }
 
                     if (datadump.@event == "ShipTargeted")
-                        if (datadump.TargetLocked == true)
+
+                        if(datadump.TargetLocked == false)
                         {
-                            
+                            GameObject TargetBoard;
+                            TargetBoard = GameObject.Find("CurrentTargetDetails");
+
+                            TargetBoard.GetComponent<Text>().text = "";
+                        }
+
+                        if (datadump.TargetLocked == true && JournalLine == 2)
+                        {
                                 CurrentTarget = datadump.Ship_Localised;
                                 TargetName = datadump.PilotName_Localised;
                                 TargetRank = datadump.PilotRank;
                                 TargetBounty = datadump.Bounty;
-                                TargetShip = datadump.Ship_Localised;
-
-
-                                if (datadump.LegalStatus == "Wanted")
-                                {
-                                    TargetWanted = true;
-                                }
-                                else
-                                {
-                                    TargetWanted = false;
-                                }
-
-                                foreach (var mission in ActiveMissionList)
-                                {
-                                    if (datadump.PilotName_Localised == mission.Target)
-                                    {
-                                        GameObject MissionTargetNotify;
-                                        MissionTargetNotify = GameObject.Find("MissionTargetNotify");
-                                        MissionTargetNotify.GetComponent<Text>().text = "Mission Target \n Locked";
-                                        MissionTarget = true;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        GameObject MissionTargetNotify;
-                                        MissionTargetNotify = GameObject.Find("MissionTargetNotify");
-                                        MissionTargetNotify.GetComponent<Text>().text = "";
-                                    }
-                                }
+                           
+                                                                             
+                               
                                 GameObject TargetBoard;
-                                TargetBoard = GameObject.Find("TargetText");
-                                if (TargetWanted == true)
-                                {
-                                    TargetBoard.GetComponent<Text>().text = "Name: " + TargetName + "\n Ship: " + TargetShip +
-                                        "\n Rank: " + TargetRank + "\nStatus: " + datadump.LegalStatus + "\n Bounty: " + TargetBounty;
-                                }
-                                else
-                                {
-                                    TargetBoard.GetComponent<Text>().text = "Name: " + TargetName + "\n Ship: " + TargetShip +
-                                                                    "\n Rank: " + TargetRank + "\n Status: " + datadump.LegalStatus;
-                                }
-
-                            GameObject TargetDetails;
-                            TargetDetails = GameObject.Find("CurrentTargetDetails");
-                            TargetDetails.GetComponent<Text>().text = "Name: " + TargetName + "\nStatus: " + datadump.LegalStatus;
+                                TargetBoard = GameObject.Find("CurrentTargetDetails");
+                            
+                                    TargetBoard.GetComponent<Text>().text = "Name: " + TargetName  +   "\n Rank: " + TargetRank  + "\n Bounty: " + TargetBounty;
                         }
-                        else
-                        {
-                            GameObject MissionTargetNotify;
-                            MissionTargetNotify = GameObject.Find("MissionTargetNotify");
-                            MissionTargetNotify.GetComponent<Text>().text = "";
 
-                            GameObject TargetBoard;
-                            TargetBoard = GameObject.Find("TargetText");
-                            TargetBoard.GetComponent<Text>().text = "";
-                        }
                 }
                 else
                 {
                     if (datadump.@event == "Commander" || datadump.part > 1)
                     {
-         
+                        Debug.Log("Commander found");
                         LastLineNumber = j;
                         JournalLine = 1;
                     }
@@ -755,22 +783,22 @@ public class GrabLog : MonoBehaviour
     public void ScrollJournals()
     {
         JournalLine = 2;
-
-            for (int item = 0; item < ActiveMissionList.Count; item++)
+        Debug.Log("Running loop before mission cleanse");
+        for (int item = 0; item < ActiveMissionList.Count; item++)
             {
-                if (ActiveMissionList[item].LocalisedName == null)
-                {
-                    FileNumber = FileNumber + 1;
-                    GetFile();
-                }
+
+            if (ActiveMissionList[item].LocalisedName == null)
+            {
+                Debug.Log(ActiveMissionList[item].MissionID + " Has no story entry");
+                FileNumber = FileNumber + 1;
+                GetFile();
             }
-
+        }
+        Debug.Log("Running mission cleanse");
             FileNumber = 0;
-
             MissionRemoval();
             MissionCleanse();
             KillCountUpdate();
-            
 
     }
     void KillCountUpdate()
@@ -825,98 +853,82 @@ public class GrabLog : MonoBehaviour
             }
         }
 
-        string path = Application.dataPath + "/Resources/Story.json";
-        string StoryBlocks = File.ReadAllText(path);
-        StoryItems = JsonConvert.DeserializeObject<List<MissionStory>>(StoryBlocks);
-
-        string Rolepath = Application.dataPath + "/Resources/Roles.json";
-        string Roles = File.ReadAllText(Rolepath);
-        RNGRoles = JsonConvert.DeserializeObject<List<RNGRoles>>(Roles);
-
-        string Factionpath = Application.dataPath + "/Resources/Factions.json";
-        string Factions = File.ReadAllText(Factionpath);
-        if (Factions != "")
-        {
-            FactionContacts = JsonConvert.DeserializeObject<List<FactionVariables>>(Factions);
-        }
+     
         GameObject MissionListDisplay;
         MissionListDisplay = GameObject.Find("MissionText");
         MissionListDisplay.GetComponent<Text>().text = "";
 
-        
-
+        Debug.Log("Active missions = " + ActiveMissionList.Count);
         for (int Mission = 0; Mission < ActiveMissionList.Count; Mission++)
         {
-            if (ActiveMissionList[Mission].Story == null)
-            {
-                int Opening = UnityEngine.Random.Range(0, StoryItems.Count);
-                int MissionGoal = UnityEngine.Random.Range(0, StoryItems.Count);
-                int FactionGoal = UnityEngine.Random.Range(0, StoryItems.Count);
-                int MissionSentimentPos = UnityEngine.Random.Range(0, StoryItems.Count);
-                int MissionSentimentNeg = UnityEngine.Random.Range(0, StoryItems.Count);
-                int NegEventsRand = UnityEngine.Random.Range(0, StoryItems.Count);
-             //   int JobRole = UnityEngine.Random.Range(0, RNGRoles.Count);
+            //if (ActiveMissionList[Mission].Story == null)
+            //{
+            //    int Opening = UnityEngine.Random.Range(0, StoryItems.Count);
+            //    int MissionGoal = UnityEngine.Random.Range(0, StoryItems.Count);
+            //    int FactionGoal = UnityEngine.Random.Range(0, StoryItems.Count);
+            //    int MissionSentimentPos = UnityEngine.Random.Range(0, StoryItems.Count);
+            //    int MissionSentimentNeg = UnityEngine.Random.Range(0, StoryItems.Count);
+            //    int NegEventsRand = UnityEngine.Random.Range(0, StoryItems.Count);
+            // //   int JobRole = UnityEngine.Random.Range(0, RNGRoles.Count);
 
-                if (ActiveMissionList[Mission].Sentiment == "Pos")
-                {
-                    Sentiment = StoryItems[MissionSentimentPos].MissionSentimentPositive;
-                }
-                else
-                {
-                    Sentiment = StoryItems[MissionSentimentNeg].MissionSentimentNegative;
-                }
+            //    if (ActiveMissionList[Mission].Sentiment == "Pos")
+            //    {
+            //        Sentiment = StoryItems[MissionSentimentPos].MissionSentimentPositive;
+            //    }
+            //    else
+            //    {
+            //        Sentiment = StoryItems[MissionSentimentNeg].MissionSentimentNegative;
+            //    }
 
-                string story = StoryItems[Opening].Opening + StoryItems[MissionGoal].MissionGoal + StoryItems[FactionGoal].FactionGoal + Sentiment;
-                story = story.Replace("-mission type-", ActiveMissionList[Mission].type);
-                story = story.Replace("-target-", ActiveMissionList[Mission].Target + " " + ActiveMissionList[Mission].TargetType_Localised);
-                story = story.Replace("-mission type-", ActiveMissionList[Mission].type);
-                story = story.Replace("-RNG date-", UnityEngine.Random.Range(3250, 3304).ToString());
-                story = story.Replace("-effect on target-", ActiveMissionList[Mission].TargetEffect);
-                story = story.Replace("-target faction-", ActiveMissionList[Mission].TargetFaction);
-                story = story.Replace("-rng negative event-", StoryItems[NegEventsRand].Event);
+            //    string story = StoryItems[Opening].Opening + StoryItems[MissionGoal].MissionGoal + StoryItems[FactionGoal].FactionGoal + Sentiment;
+            //    story = story.Replace("-mission type-", ActiveMissionList[Mission].type);
+            //    story = story.Replace("-target-", ActiveMissionList[Mission].Target + " " + ActiveMissionList[Mission].TargetType_Localised);
+            //    story = story.Replace("-mission type-", ActiveMissionList[Mission].type);
+            //    story = story.Replace("-RNG date-", UnityEngine.Random.Range(3250, 3304).ToString());
+            //    story = story.Replace("-effect on target-", ActiveMissionList[Mission].TargetEffect);
+            //    story = story.Replace("-target faction-", ActiveMissionList[Mission].TargetFaction);
+            //    story = story.Replace("-rng negative event-", StoryItems[NegEventsRand].Event);
 
-                try
-                {
+            //    try
+            //    {
 
-                    for (int faction = 0; faction < FactionContacts.Count; faction++)
-                    {
-                        if (FactionContacts[faction].FactionName == ActiveMissionList[Mission].Faction && FactionContacts[faction].ContactDepartment == ActiveMissionList[Mission].Department)
-                        {
+            //        for (int faction = 0; faction < FactionContacts.Count; faction++)
+            //        {
+            //            if (FactionContacts[faction].FactionName == ActiveMissionList[Mission].Faction && FactionContacts[faction].ContactDepartment == ActiveMissionList[Mission].Department)
+            //            {
 
-                            ActiveMissionList[Mission].FactionContact = FactionContacts[faction].FactionContact;
-                            ActiveMissionList[Mission].ContactRole = FactionContacts[faction].ContactRole;
-                            break;
-                        }
-                    }
+            //                ActiveMissionList[Mission].FactionContact = FactionContacts[faction].FactionContact;
+            //                ActiveMissionList[Mission].ContactRole = FactionContacts[faction].ContactRole;
+            //                break;
+            //            }
+            //        }
                
-                }
-                catch (Exception) { }
-                if(ActiveMissionList[Mission].FactionContact == null)
-                {
-                      GenerateFactionContact(ActiveMissionList[Mission].Department, ActiveMissionList[Mission].Faction);
+            //    }
+            //    catch (Exception) { }
+            //    if(ActiveMissionList[Mission].FactionContact == null)
+            //    {
+            //          GenerateFactionContact(ActiveMissionList[Mission].Department, ActiveMissionList[Mission].Faction);
 
-                    ActiveMissionList[Mission].FactionContact = FactionContacts[FactionContacts.Count].FactionContact;
-                    ActiveMissionList[Mission].ContactRole = FactionContacts[FactionContacts.Count].ContactRole;
-                }
+            //        ActiveMissionList[Mission].FactionContact = FactionContacts[FactionContacts.Count].FactionContact;
+            //        ActiveMissionList[Mission].ContactRole = FactionContacts[FactionContacts.Count].ContactRole;
+            //    }
                                 
-                story = story.Replace("-RNG name-", ActiveMissionList[Mission].FactionContact);
-                    story = story.Replace("-employing faction-", ActiveMissionList[Mission].Faction);
-                    story = story.Replace("-RNG role-", ActiveMissionList[Mission].ContactRole + ActiveMissionList[Mission].Department);
+            //    story = story.Replace("-RNG name-", ActiveMissionList[Mission].FactionContact);
+            //        story = story.Replace("-employing faction-", ActiveMissionList[Mission].Faction);
+            //        story = story.Replace("-RNG role-", ActiveMissionList[Mission].ContactRole + ActiveMissionList[Mission].Department);
 
-                ActiveMissionList[Mission].Story = story;
-            }
+            //    ActiveMissionList[Mission].Story = story;
+            //}
             if (ActiveMissionList[Mission].KillCount == 0)
             {
-                MissionListDisplay.GetComponent<Text>().text = MissionListDisplay.GetComponent<Text>().text + ActiveMissionList[Mission].type + " " + ActiveMissionList[Mission].Target + "\n";
+                MissionListDisplay.GetComponent<Text>().text = MissionListDisplay.GetComponent<Text>().text + (Mission + 1) + " - " + ActiveMissionList[Mission].type + " " + ActiveMissionList[Mission].Target + "\n";
+   
             }
             else
             {
-                MissionListDisplay.GetComponent<Text>().text = MissionListDisplay.GetComponent<Text>().text + ActiveMissionList[Mission].type + " " + ActiveMissionList[Mission].KillCount + " " + ActiveMissionList[Mission].Target + "\n";
+                MissionListDisplay.GetComponent<Text>().text = MissionListDisplay.GetComponent<Text>().text + (Mission + 1) + " - " + ActiveMissionList[Mission].type + " " + ActiveMissionList[Mission].KillCount + " " + ActiveMissionList[Mission].Target + "\n";
+            
             }
-
-            Debug.Log("Mission " + Mission + " is " + ActiveMissionList[Mission].LocalisedName);
-            Debug.Log("Manual Mission 0 is " + ActiveMissionList[0].LocalisedName);
-            Debug.Log("Manual Mission 1 is " + ActiveMissionList[1].LocalisedName);
 
             if (GetComponent<VoiceRecognitionSystem>().MissionSelected == true)
             {
@@ -953,27 +965,23 @@ public class GrabLog : MonoBehaviour
         GetComponent<PopulateBoards>().storeJSON();
     }
 
-    public void GenerateFactionContact(string Department, string Faction)
-    {
-        GetComponent<GetRandomName>().GetName();
+    //public void GenerateFactionContact(string Department, string Faction)
+    //{
+    //    GetComponent<GetRandomName>().GetName();
 
-        string name = GetComponent<GetRandomName>().FirstName + " " + GetComponent<GetRandomName>().LastName;
+    //    string name = GetComponent<GetRandomName>().FirstName + " " + GetComponent<GetRandomName>().LastName;
 
-        string Factionpath = Application.dataPath + "/Resources/Factions.json";
-        string[] WatsonVoices = new string[] { "Allison", "Lisa" };
-   
+    //    FactionContacts.Add(new FactionVariables
+    //    {
+    //        FactionContact = name,
+    //        ContactDepartment = Department,
+    //        ContactRole = RNGRoles[UnityEngine.Random.Range(0, RNGRoles.Count)].JobTitle,
+    //        FactionName = Faction,
+    //    });
 
-        FactionContacts.Add(new FactionVariables
-        {
-            FactionContact = name,
-            ContactDepartment = Department,
-            ContactRole = RNGRoles[UnityEngine.Random.Range(0, RNGRoles.Count)].JobTitle,
-            FactionName = Faction,
-        });
-
-        string FactionJSON = JsonConvert.SerializeObject(FactionContacts);
-        File.WriteAllText(Factionpath, FactionJSON);
-    }
+    //    string FactionJSON = JsonConvert.SerializeObject(FactionContacts);
+    //    File.WriteAllText(Factionpath, FactionJSON);
+    //}
 
     //public void Reward()
     //{
